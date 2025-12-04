@@ -4,12 +4,13 @@ const bodyParser = require('body-parser');
 const mongoose = require ('mongoose');
 const todoRoute = require ("./routes/todo.route")
 const userRoute = require ("./routes/user.route")
+require('dotenv').config()
 
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-mongoose.connect("mongodb+srv://rushi-kesh:rushi123@my-cluster.kpd7p2g.mongodb.net/?appName=my-cluster")
+mongoose.connect(process.env.MONGOdb_CONNECTION_STRING)
 .then(()=>{
     console.log("Mongodb connected");
 }).catch(error=>{

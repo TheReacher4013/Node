@@ -1,6 +1,7 @@
 const User = require('../models/user');
 const bcryptjs = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const user = require('../models/user');
 /**
  * Signup Logic  
  * 1) register -> add new user in db
@@ -51,9 +52,10 @@ exports.signup = async (req, res) => {
 exports.signin = async (req, res) => {
     try {
         const { email, password } = req.body;
-        const userRecord = await User.find({ email });
+        const userRecord = await User.findOne({ email });
+        console.log(userRecord);
         //check if user already registered
-        if (userRecord.length == 0) {
+        if (userRecord == null) {
             return res.status(200).json({
                 message: "User not registered, please signup"
             })
@@ -65,9 +67,19 @@ exports.signin = async (req, res) => {
                 message: "Password is not match"
             })
         }
+
+        //generate JWT token Plus send AuthToken
+
+        const authtoken = jwt.sign({ _id: userRecord._id }, process.env.JWT_TOKEN);
+        return res.status(200).json({
+            message: "Authentication successfull",
+            authtoken
+        })
+
+
     } catch (error) {
         console.log(error);
-        return req.status(400).json({
+        return res.status(400).json({
             message: "something went wrong"
         })
     }

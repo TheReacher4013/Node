@@ -85,3 +85,43 @@ exports.signin = async (req, res) => {
     }
 
 }
+
+
+/**
+ * Authorization 
+ * authtoken is send by frontend in header
+ * 1) check for authtoken req.header("authorization")->  no-> return 400 response 
+ * 2) "bearer authoken", (split and get only token) ->no -> return 400 response 
+ * 3) JWT.verify -> return 400 response
+ * 4) next() (express)
+ * */
+
+exports.authenticate = async (req, res, next) => {
+    try{
+        const authHeader = req.header("Authorization");
+        if (!authHeader) {
+            return res.status(400).json({
+                message:"Token not Found"
+            })
+        }
+
+        const token = authHeader.split(" ")[1]
+        if(!token) {
+            return res.status(400).json({
+                message:"Token not found"
+            })
+        }
+        // validate the token
+
+        const validateToken = await jwt.verify(token, process.env.JWT_TOKEN);
+        req.user = validateToken;
+        next();
+
+    } catch (error) {
+        console.log(error);
+        return res.status(400).json({
+            message: "something went wrong"
+        })
+    }
+
+}
